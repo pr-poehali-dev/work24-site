@@ -14,7 +14,7 @@ const Index = () => {
   const [calculator, setCalculator] = useState({
     service: 'loaders',
     workers: 2,
-    hours: 3
+    hours: 4
   });
   const [calculatorOpen, setCalculatorOpen] = useState(false);
 
@@ -92,7 +92,7 @@ const Index = () => {
     },
     {
       question: 'Какая минимальная продолжительность заказа?',
-      answer: 'Минимальный заказ - 3 часа работы. Это позволяет эффективно организовать работу бригады.'
+      answer: 'Минимальный заказ - 4 часа работы. Это позволяет эффективно организовать работу бригады.'
     },
     {
       question: 'Предоставляете ли инвентарь?',
@@ -125,7 +125,7 @@ const Index = () => {
     return rate * calculator.workers * calculator.hours;
   };
 
-  const minHours = 3;
+  const minHours = 4;
   const totalPrice = calculatePrice();
   const isBelowMinimum = calculator.hours < minHours;
 
@@ -365,7 +365,7 @@ const Index = () => {
                   <span className="font-heading font-bold text-primary">от 300₽/м³</span>
                 </div>
                 <div className="pt-4 border-t">
-                  <p className="text-sm text-muted-foreground">✓ Минимальный заказ 3 часа</p>
+                  <p className="text-sm text-muted-foreground">✓ Минимальный заказ 4 часа</p>
                   <p className="text-sm text-muted-foreground">✓ Наличная и безналичная оплата</p>
                 </div>
               </CardContent>
