@@ -4,35 +4,48 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 
 const Index = () => {
   const [formData, setFormData] = useState({ name: '', phone: '', message: '' });
+  const [calculator, setCalculator] = useState({
+    service: 'loaders',
+    workers: 2,
+    hours: 3
+  });
+  const [calculatorOpen, setCalculatorOpen] = useState(false);
 
   const services = [
     {
       title: 'Грузчики',
       description: 'Профессиональная бригада грузчиков для переездов, разгрузки и погрузки',
       icon: 'Package',
-      price: 'от 500₽/час'
+      price: 'от 500₽/час',
+      rate: 500
     },
     {
       title: 'Разнорабочие',
       description: 'Выполнение различных работ: уборка, демонтаж, благоустройство',
       icon: 'Wrench',
-      price: 'от 450₽/час'
+      price: 'от 500₽/час',
+      rate: 500
     },
     {
       title: 'Упаковка',
       description: 'Профессиональная упаковка мебели и хрупких предметов',
       icon: 'Box',
-      price: 'от 300₽/м³'
+      price: 'от 300₽/м³',
+      rate: 300
     },
     {
       title: 'Складские работы',
       description: 'Погрузка, разгрузка, сортировка товаров на складе',
       icon: 'Warehouse',
-      price: 'от 400₽/час'
+      price: 'от 500₽/час',
+      rate: 500
     }
   ];
 
@@ -102,6 +115,20 @@ const Index = () => {
     setFormData({ name: '', phone: '', message: '' });
   };
 
+  const calculatePrice = () => {
+    const rates: { [key: string]: number } = {
+      loaders: 500,
+      workers: 500,
+      warehouse: 500
+    };
+    const rate = rates[calculator.service] || 500;
+    return rate * calculator.workers * calculator.hours;
+  };
+
+  const minHours = 3;
+  const totalPrice = calculatePrice();
+  const isBelowMinimum = calculator.hours < minHours;
+
   return (
     <div className="min-h-screen font-body">
       <header className="bg-white border-b sticky top-0 z-50 shadow-sm">
@@ -137,10 +164,79 @@ const Index = () => {
               Быстрая подача от 1 часа.
             </p>
             <div className="flex flex-wrap gap-4">
-              <Button size="lg" variant="secondary" className="font-heading font-semibold">
-                <Icon name="Calculator" size={20} className="mr-2" />
-                Рассчитать стоимость
-              </Button>
+              <Dialog open={calculatorOpen} onOpenChange={setCalculatorOpen}>
+                <DialogTrigger asChild>
+                  <Button size="lg" variant="secondary" className="font-heading font-semibold">
+                    <Icon name="Calculator" size={20} className="mr-2" />
+                    Рассчитать стоимость
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle className="font-heading text-2xl">Калькулятор стоимости</DialogTitle>
+                    <DialogDescription>
+                      Рассчитайте примерную стоимость услуг
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-6 py-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="service" className="font-semibold">Тип услуги</Label>
+                      <Select value={calculator.service} onValueChange={(value) => setCalculator({ ...calculator, service: value })}>
+                        <SelectTrigger id="service">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="loaders">Грузчики</SelectItem>
+                          <SelectItem value="workers">Разнорабочие</SelectItem>
+                          <SelectItem value="warehouse">Складские работы</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="workers" className="font-semibold">Количество человек</Label>
+                      <Input
+                        id="workers"
+                        type="number"
+                        min="1"
+                        max="20"
+                        value={calculator.workers}
+                        onChange={(e) => setCalculator({ ...calculator, workers: parseInt(e.target.value) || 1 })}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="hours" className="font-semibold">Количество часов</Label>
+                      <Input
+                        id="hours"
+                        type="number"
+                        min="1"
+                        max="24"
+                        value={calculator.hours}
+                        onChange={(e) => setCalculator({ ...calculator, hours: parseInt(e.target.value) || 1 })}
+                      />
+                      {isBelowMinimum && (
+                        <p className="text-sm text-amber-600">Минимальный заказ — {minHours} часа</p>
+                      )}
+                    </div>
+                    
+                    <div className="bg-primary/10 p-6 rounded-lg text-center">
+                      <p className="text-sm text-muted-foreground mb-2">Примерная стоимость:</p>
+                      <p className="text-4xl font-heading font-bold text-primary">
+                        {totalPrice.toLocaleString('ru-RU')} ₽
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        {calculator.workers} чел. × {calculator.hours} ч. × 500₽/час
+                      </p>
+                    </div>
+                    
+                    <Button className="w-full font-heading" onClick={() => setCalculatorOpen(false)}>
+                      <Icon name="Phone" size={18} className="mr-2" />
+                      Позвонить для оформления
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
               <Button size="lg" variant="outline" className="bg-white/10 text-white border-white hover:bg-white hover:text-primary font-heading font-semibold">
                 <Icon name="Phone" size={20} className="mr-2" />
                 Позвонить сейчас
@@ -233,11 +329,11 @@ const Index = () => {
               <CardContent className="space-y-4">
                 <div className="flex justify-between items-center">
                   <span>Грузчик</span>
-                  <span className="font-heading font-bold text-primary">от 450₽/час</span>
+                  <span className="font-heading font-bold text-primary">от 500₽/час</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span>Разнорабочий</span>
-                  <span className="font-heading font-bold text-primary">от 400₽/час</span>
+                  <span className="font-heading font-bold text-primary">от 500₽/час</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span>Бригадир</span>
@@ -262,7 +358,7 @@ const Index = () => {
                 </div>
                 <div className="flex justify-between items-center">
                   <span>Разнорабочий</span>
-                  <span className="font-heading font-bold text-primary">от 450₽/час</span>
+                  <span className="font-heading font-bold text-primary">от 500₽/час</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span>Упаковка вещей</span>
